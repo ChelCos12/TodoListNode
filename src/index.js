@@ -4,6 +4,7 @@ const { testConnection } = require('./db/connection');
 const userRoutes  = require('./routes/user.routes'); 
 const categoryRoutes = require('./routes/category.routes');
 const tagRoutes = require('./routes/tag.routes');
+const taskRoutes = require('./routes/task.routes');
 require('dotenv').config();
 
 const app = express();
@@ -21,6 +22,7 @@ app.get('/', (req, res) => {
 app.use('/api', userRoutes);
 app.use('/api/categorias', categoryRoutes);
 app.use('/api/etiquetas', tagRoutes);
+app.use('/api/tareas', taskRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: 'Ruta no encontrada' });
