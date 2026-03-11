@@ -23,4 +23,29 @@ const register = async (req, res) => {
   }
 };
 
-module.exports = { register };
+const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const [[user]] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
+    if (!user) return res.json(null);
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid) return res.json(null);
+    const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, {
+      expiresIn: process.env.JWT_EXPIRES_IN || '12h',
+    });
+    res.json({ user: userDecorator(user), token });
+  } catch (error) {
+    res.json(error);
+  }
+};
+
+const logout = async (req, res) => {
+  try {
+    res.json({ message: 'Sesión cerrada' });
+  } catch (error) {
+    res.json(error);
+  }
+  
+};
+
+module.exports = { register, login, logout };
