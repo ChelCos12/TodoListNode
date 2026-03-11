@@ -6,7 +6,7 @@ const userRoutes  = require('./routes/user.routes');
 const categoryRoutes = require('./routes/category.routes');
 const tagRoutes = require('./routes/tag.routes');
 const taskRoutes = require('./routes/task.routes');
-
+const authMiddleware = require('./middlewares/auth.middleware');
 
 const app = express();
 
@@ -21,9 +21,9 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api', userRoutes);
-app.use('/api/categorias', categoryRoutes);
-app.use('/api/etiquetas', tagRoutes);
-app.use('/api/tareas', taskRoutes);
+app.use('/api/categorias',authMiddleware, categoryRoutes);
+app.use('/api/etiquetas',authMiddleware, tagRoutes);
+app.use('/api/tareas',authMiddleware, taskRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: 'Ruta no encontrada' });
