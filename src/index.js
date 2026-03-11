@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const { testConnection } = require('./db/connection');
 require('dotenv').config();
 
 const app = express();
@@ -20,6 +21,11 @@ app.use((req, res) => {
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
-});
+const startServer = async () => {
+  await testConnection();
+  app.listen(PORT, () => {
+    console.log(`Servidor corriendo en http://localhost:${PORT}`);
+  });
+};
+
+startServer();
