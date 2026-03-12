@@ -25,7 +25,7 @@ const index = async (req, res) => {
 
 const store = async (req, res) => {
   try {
-    const { nombre, color } = req.body;
+      const { nombre, color } = req.body;
     const id = uuidv4();
     await pool.query(
       'INSERT INTO tags (id, nombre, color, user_id, created_at) VALUES (?, ?, ?, ?, NOW())',
