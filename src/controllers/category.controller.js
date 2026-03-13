@@ -69,8 +69,7 @@ const destroy = async (req, res) => {
       return res.status(404).json({ message: 'Categoría no encontrada' });
     }
     await pool.query('DELETE FROM categories WHERE id = ?', [id]);
-    res.json({ message: 'Categoría eliminada' });
-    res.status(201).json(categoryDecorator(category));
+    res.status(201).json({message: 'Categoría eliminada',category: categoryDecorator(category)});
   } catch (error) {
     res.status(500).json({ message: 'Error del servidor', error: error.message });
   }
