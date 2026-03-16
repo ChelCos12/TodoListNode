@@ -2,7 +2,6 @@ const { v4: uuidv4 } = require('uuid');
 const { pool } = require('../db/connection');
 const { taskDecorator } = require('../decorators/task.decorator');
 const { paginate } = require('../utils/paginate');
-const user_id = 1;
 
 const PER_PAGE = 5;
 const BASE_PATH = 'http://localhost:3000/api/tareas';
@@ -36,7 +35,7 @@ const index = async (req, res) => {
        LEFT JOIN tags tag ON tag.id = tt.etiqueta_id
        WHERE t.user_id = ?
        ORDER BY t.created_at DESC`,
-      [user_id]
+      [req.user.id]
     );
     if (rows.length === 0) {
       return res.json(paginate([], req.query.page, PER_PAGE, BASE_PATH));
@@ -92,7 +91,7 @@ const store = async (req, res) => {
     const id = uuidv4();
     await pool.query(
       'INSERT INTO tasks (id, titulo, descripcion, categoria_id, user_id, created_at) VALUES (?, ?, ?, ?, ?, NOW())',
-      [id, titulo, descripcion || null, categoria_id || null, user_id]
+      [id, titulo, descripcion || null, categoria_id || null, req.user.id]
     );
 
     if (etiquetas && etiquetas.length > 0) {
@@ -103,7 +102,7 @@ const store = async (req, res) => {
         );
       }
     }
-    const task = await getTaskFull(id, user_id);
+    const task = await getTaskFull(id, req.user.id);
     res.status(201).json({
       success: true,
       message: 'Tarea creada exitosamente',
@@ -116,7 +115,7 @@ const store = async (req, res) => {
 
 const show = async (req, res) => {
   try {
-    const task = await getTaskFull(req.params.id, user_id);
+    const task = await getTaskFull(req.params.id, req.user.id);
     if (!task) {
        return res.status(400).json({ success: false, message: 'Tarea no encontrada' });
     }
@@ -136,7 +135,7 @@ const update = async (req, res) => {
     }
     const [[existing]] = await pool.query(
       'SELECT * FROM tasks WHERE id = ? AND user_id = ?',
-      [id, user_id]
+      [id, req.user.id]
     );
     if (!existing) {
       return res.status(404).json({ success: false, message: 'Tarea no encontrada' });
@@ -148,7 +147,7 @@ const update = async (req, res) => {
         descripcion !== undefined ? descripcion : existing.descripcion,
         categoria_id !== undefined ? categoria_id : existing.categoria_id,
         status !== undefined ? status : existing.status,
-        id, user_id,
+        id, req.user.id,
       ]
     );
 
@@ -162,7 +161,7 @@ const update = async (req, res) => {
       }
     }
 
-    const task = await getTaskFull(id, user_id);
+    const task = await getTaskFull(id, req.user.id);
 
     res.status(201).json({
       success: true,
@@ -180,14 +179,14 @@ const destroy = async (req, res) => {
 
     const [[existing]] = await pool.query(
       'SELECT * FROM tasks WHERE id = ? AND user_id = ?',
-      [id, user_id]
+      [id, req.user.id]
     );
     if (!existing){
       return res.status(404).json({ success: false, message: 'Tarea no encontrada' });
     }
-    await pool.query('DELETE FROM tasks WHERE id = ? AND user_id = ?', [id, user_id]);
+    await pool.query('DELETE FROM tasks WHERE id = ? AND user_id = ?', [id, req.user.id]);
 
-    res.status(201).json({ success: true, message: 'Tarea eliminada exitosamente', task: taskDecorator(task)});
+    res.status(201).json({ success: true, message: 'Tarea eliminada exitosamente'});
   } catch (error) {
     res.status(500).json({ message: 'Error del servidor', error: error.message });
   }
