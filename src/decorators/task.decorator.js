@@ -3,7 +3,7 @@ const taskDecorator = (task, categoria, etiquetas = []) => ({
   titulo: task.titulo,
   descripcion: task.descripcion,
   categoria_id: task.categoria_id,
-  completada: Boolean(task.completada),
+  completada: Boolean(task.status),
   created_at: task.created_at,
   updated_at: task.updated_at,
   categoria: categoria ? {
