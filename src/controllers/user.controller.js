@@ -81,7 +81,6 @@ const logout = async (req, res) => {
   } catch (error) {
     res.status(500).json({ success: false, message: 'Error del servidor', error: error.message });
   }
-  
 };
 
 module.exports = { register, login, logout };

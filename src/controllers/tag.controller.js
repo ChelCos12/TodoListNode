@@ -2,7 +2,6 @@ const { v4: uuidv4 } = require('uuid');
 const { pool } = require('../db/connection');
 const { tagDecorator } = require('../decorators/tag.decorator');
 const { paginate } = require('../utils/paginate');
-const user_id = 1;
 
 const PER_PAGE = 5;
 const BASE_PATH = 'http://localhost:3000/api/etiquetas';
@@ -11,7 +10,7 @@ const index = async (req, res) => {
   try {
     const [rows] = await pool.query(
       'SELECT * FROM tags WHERE user_id = ? ORDER BY created_at DESC',
-      [user_id]
+      [req.user.id]
     );
     if (req.query.all === 'true') {
       return res.status(201).json({ data: rows.map(tagDecorator) });
@@ -25,11 +24,11 @@ const index = async (req, res) => {
 
 const store = async (req, res) => {
   try {
-    const { nombre, color } = req.body;
+      const { nombre, color } = req.body;
     const id = uuidv4();
     await pool.query(
       'INSERT INTO tags (id, nombre, color, user_id, created_at) VALUES (?, ?, ?, ?, NOW())',
-      [id, nombre, color || '#3498db', user_id]
+      [id, nombre, color || '#3498db', req.user.id]
     );
     const [[created]] = await pool.query('SELECT * FROM tags WHERE id = ?', [id]);
 
@@ -45,7 +44,7 @@ const store = async (req, res) => {
 
 const show = async (req, res) => {
   try {
-    const [[tag]] = await pool.query('SELECT * FROM tags WHERE id = ? AND user_id = ?', [req.params.id, user_id]);
+    const [[tag]] = await pool.query('SELECT * FROM tags WHERE id = ? AND user_id = ?', [req.params.id, req.user.id]);
     if (!tag){
       return res.json({ success: false, message: 'Etiqueta no encontrada' });
     }
@@ -59,7 +58,7 @@ const update = async (req, res) => {
   try {
     const { nombre, color } = req.body;
     const { id } = req.params;
-    const [[tag]] = await pool.query('SELECT * FROM tags WHERE id = ? AND user_id = ?', [id, user_id]);
+    const [[tag]] = await pool.query('SELECT * FROM tags WHERE id = ? AND user_id = ?', [id, req.user.id]);
     if (!tag){
       return res.json({ success: false, message: 'Etiqueta no encontrada' });
     }
@@ -82,7 +81,7 @@ const update = async (req, res) => {
 const destroy = async (req, res) => {
   try {
     const { id } = req.params;
-    const [[tag]] = await pool.query('SELECT * FROM tags WHERE id = ? AND user_id = ?', [id, user_id]);
+    const [[tag]] = await pool.query('SELECT * FROM tags WHERE id = ? AND user_id = ?', [id, req.user.id]);
     if (!tag){
       return res.json({ success: false, message: 'Etiqueta no encontrada' });
     }
