@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const { testConnection } = require('./db/connection');
@@ -5,7 +6,7 @@ const userRoutes  = require('./routes/user.routes');
 const categoryRoutes = require('./routes/category.routes');
 const tagRoutes = require('./routes/tag.routes');
 const taskRoutes = require('./routes/task.routes');
-require('dotenv').config();
+
 
 const app = express();
 
