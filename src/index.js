@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const { testConnection } = require('./db/connection');
+const userRoutes  = require('./routes/user.routes'); 
 require('dotenv').config();
 
 const app = express();
@@ -14,6 +15,8 @@ app.get('/', (req, res) => {
     message: 'FUNCIONANDO',
   });
 });
+
+app.use('/api', userRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: 'Ruta no encontrada' });
